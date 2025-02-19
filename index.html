@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Experiment - Drag & Drop Ranking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2em;
+      background: #f5f5f5;
+    }
+    h1, h3 {
+      color: #333;
+    }
+    .speaker-section {
+      background: #fff;
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .audio-group {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      padding: 0.5em;
+      background: #e3e3e3;
+      border-radius: 5px;
+      cursor: grab;
+    }
+    .dropzone {
+      border: 2px dashed #007bff;
+      padding: 1em;
+      min-height: 50px;
+      background: #fff;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 1em;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.2em;
+      cursor: pointer;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Voice Experiment - Rank the Real Voice</h1>
+  <p>Drag and drop the audio options to rank them as real or AI generated.</p>
+  
+  <form id="rankingForm">
+    <script>
+      let totalSpeakers = 3;
+      let formHTML = "";
+      
+      for (let i = 1; i <= totalSpeakers; i++) {
+        formHTML += `
+        <div class="speaker-section" id="speaker${i}">
+          <h3>Speaker ${i}</h3>
+          <div id="options${i}" class="options" ondrop="drop(event, 'options${i}')" ondragover="allowDrop(event)">
+            <div class="audio-group" draggable="true" ondragstart="drag(event)" id="speaker${i}_option1">
+              <p>Option 1</p>
+              <audio controls>
+                <source src="audio/speaker${i}_option1.wav" type="audio/wav" />
+              </audio>
+            </div>
+            <div class="audio-group" draggable="true" ondragstart="drag(event)" id="speaker${i}_option2">
+              <p>Option 2</p>
+              <audio controls>
+                <source src="audio/speaker${i}_option2.wav" type="audio/wav" />
+              </audio>
+            </div>
+            <div class="audio-group" draggable="true" ondragstart="drag(event)" id="speaker${i}_option3">
+              <p>Option 3</p>
+              <audio controls>
+                <source src="audio/speaker${i}_option3.wav" type="audio/wav" />
+              </audio>
+            </div>
+          </div>
+          <p>Drag into these boxes to rank:</p>
+          <div class="dropzone" id="real${i}" ondrop="drop(event, 'real${i}')" ondragover="allowDrop(event)">Real</div>
+          <div class="dropzone" id="ai1${i}" ondrop="drop(event, 'ai1${i}')" ondragover="allowDrop(event)">AI Generated</div>
+          <div class="dropzone" id="ai2${i}" ondrop="drop(event, 'ai2${i}')" ondragover="allowDrop(event)">AI Generated</div>
+        </div>`;
+      }
+      
+      document.write(formHTML);
+    </script>
+    
+    <button type="submit" class="submit-btn">Submit Ranking</button>
+  </form>
+  
+  <script>
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+    function drag(event) {
+      event.dataTransfer.setData("text", event.target.id);
+    }
+    function drop(event, targetId) {
+      event.preventDefault();
+      let data = event.dataTransfer.getData("text");
+      let draggedElement = document.getElementById(data);
+      let dropTarget = document.getElementById(targetId);
+      
+      if (dropTarget.childElementCount === 0) {
+        dropTarget.appendChild(draggedElement);
+      }
+    }
+    document.getElementById('rankingForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      let rankings = {};
+      
+      for (let i = 1; i <= totalSpeakers; i++) {
+        if (!document.getElementById('real' + i).children.length ||
+            !document.getElementById('ai1' + i).children.length ||
+            !document.getElementById('ai2' + i).children.length) {
+          alert('You haven’t ranked all speakers. Please complete all rankings before submitting.');
+          return;
+        }
+        rankings['speaker' + i] = {
+          real: document.getElementById('real' + i).children[0]?.id,
+          ai1: document.getElementById('ai1' + i).children[0]?.id,
+          ai2: document.getElementById('ai2' + i).children[0]?.id
+        };
+      }
+      
+      fetch("https://formspree.io/f/xbldqjqk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(rankings)
+      })
+      .then(response => response.json())
+      .then(data => alert("Rankings submitted successfully!"))
+      .catch(error => console.error("Error:", error));
+    });
+  </script>
+</body>
+</html>
