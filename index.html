@@ -3,16 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Speech Deepfake - Can you tell which voice is the original and which are AI generated?</title>
+
+  <!-- Style section for the webpage -->
   <style>
+    /* Body styling: font, margin, and background color */
     body {
       font-family: Arial, sans-serif;
       margin: 2em;
       background: #409bb6;
     }
+    /* Heading styles */
     h1, h3 {
       color: #1a1a1a;
     }
+    /* Style for each speaker section container */
     .speaker-section {
       background: #fff;
       padding: 1em;
@@ -20,6 +24,15 @@
       border-radius: 5px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    /* Style for the information box at the top */
+    .info-box {
+      background: #fff;
+      padding: 1.5em;
+      margin-bottom: 1.5em;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    /* Styling for the audio group elements (draggable items) */
     .audio-group {
       display: flex;
       align-items: center;
@@ -29,6 +42,7 @@
       border-radius: 5px;
       cursor: grab;
     }
+    /* Style for the drop zones where the audio options can be dropped */
     .dropzone {
       border: 2px dashed #007bff;
       padding: 1em;
@@ -37,6 +51,7 @@
       margin-bottom: 10px;
       text-align: center;
     }
+    /* Styling for the submit button */
     .submit-btn {
       display: block;
       width: 100%;
@@ -52,116 +67,199 @@
   </style>
 </head>
 <body>
-  <h1>Speech Deepfake - Can you tell which voice is the original and which are AI generated?</h1>
-  <p>Drag and drop the audio options to rank them as real or AI-generated.</p>
-  
+  <!-- Page title -->
+  <h1>Speech Deepfake - Can You Tell Which Voice is Real?</h1>
+  <!-- Information box with instructions for the user -->
+  <div class="info-box">
+    <p>Welcome to the Speech Deepfake Detection Challenge!</p>
+    <p>
+      In this test, you will be presented with audio samples from multiple speakers. 
+      Each speaker has <strong>one real voice recording</strong> and <strong>four AI-generated versions</strong>. 
+      Your task is to <strong>rank them from most real to most artificial</strong> by dragging and dropping each sample into the appropriate category.
+    </p>
+  </div>
+
+  <!-- Form to capture the ranking submissions -->
   <form id="rankingForm">
     <script>
-      let totalSpeakers = 3; // Set to the total number of speakers
+      // Define the total number of speakers to be displayed
+      let totalSpeakers = 3;
+      // Initialize a variable to hold the HTML content for the form
       let formHTML = "";
+      // Object to store mapping from audio file IDs to their option numbers for each speaker
+      let optionMappings = {}; // Store option numbers for reference
 
-      // Function to shuffle an array (Fisher-Yates Shuffle Algorithm)
+      // Function to randomly shuffle an array using the Fisher-Yates algorithm
       function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
+          // Pick a random index from 0 to i (inclusive)
           let j = Math.floor(Math.random() * (i + 1));
+          // Swap the element at i with the element at j
           [array[i], array[j]] = [array[j], array[i]];
         }
       }
 
+      // Loop through each speaker to generate their section
       for (let i = 1; i <= totalSpeakers; i++) {
-        // Create an array with real and AI-generated audio sources
+        // Array of audio files for the current speaker with their ids, sources, and types
         let audioFiles = [
-          { id: `speaker${i}_real`, label: "Option 1", src: `speaker${i}/real.wav`, type: "Real Voice" }, // Real voice
-          { id: `speaker${i}_ai1`, label: "Option 2", src: `speaker${i}/speaker_fixed1.wav`, type: "AI Generated 1" }, // AI-generated
-          { id: `speaker${i}_ai2`, label: "Option 3", src: `speaker${i}/speaker_fixed2.wav`, type: "AI Generated 2" }  // AI-generated
+          { id: `speaker${i}_real`, src: `speaker${i}/real.wav`, type: "Real Voice" },
+          { id: `speaker${i}_ai1`, src: `speaker${i}/speaker_fixed1.wav`, type: "AI Generated 1" },
+          { id: `speaker${i}_ai2`, src: `speaker${i}/speaker_fixed2.wav`, type: "AI Generated 2" },
+          { id: `speaker${i}_ai3`, src: `speaker${i}/playht.wav`, type: "AI Generated 3" },
+          { id: `speaker${i}_ai4`, src: `speaker${i}/resemble.wav`, type: "AI Generated 4" }
         ];
 
-        // Shuffle the order of the audio files so each speaker has a different random order
+        // Randomly shuffle the order of audio files so the options appear in a different order each time
         shuffleArray(audioFiles);
+        // Initialize the mapping object for the current speaker
+        optionMappings[`speaker${i}`] = {}; // Create mapping for this speaker
 
-        // Generate HTML for this speaker
-        formHTML += `
-        <div class="speaker-section" id="speaker${i}">
+        // Begin building the HTML for this speaker's section
+        formHTML += `<div class="speaker-section" id="speaker${i}">
           <h3>Speaker ${i}</h3>
           <div id="options${i}" class="options" ondrop="drop(event, 'options${i}')" ondragover="allowDrop(event)">`;
 
-        // Loop through the shuffled array and create the audio elements
+        // Create draggable audio option elements for each audio file
         audioFiles.forEach((file, index) => {
-          formHTML += `
-            <div class="audio-group" draggable="true" ondragstart="drag(event)" id="${file.id}">
-              <p>Option ${index + 1}</p> <!-- Displaying generic option numbers -->
+          // Map the file id to an option label (e.g., Option 1, Option 2, etc.)
+          optionMappings[`speaker${i}`][file.id] = `Option ${index + 1}`; // Map file ID to Option number
+          // Append the HTML for each audio option with its audio player
+          formHTML += `<div class="audio-group" draggable="true" ondragstart="drag(event)" id="${file.id}">
+              <p>Option ${index + 1}</p>
               <audio controls>
                 <source src="${file.src}" type="audio/wav" />
               </audio>
-              <!-- Comment in the code (not visible on the webpage) -->
-              <!-- ${file.type} -->
             </div>`;
         });
 
+        // Close the options div and add drop zones for ranking the audio samples
         formHTML += `</div>
           <p>Drag into these boxes to rank:</p>
           <div class="dropzone" id="real${i}" ondrop="drop(event, 'real${i}')" ondragover="allowDrop(event)">Real</div>
           <div class="dropzone" id="ai1${i}" ondrop="drop(event, 'ai1${i}')" ondragover="allowDrop(event)">AI Generated</div>
           <div class="dropzone" id="ai2${i}" ondrop="drop(event, 'ai2${i}')" ondragover="allowDrop(event)">AI Generated</div>
+          <div class="dropzone" id="ai3${i}" ondrop="drop(event, 'ai3${i}')" ondragover="allowDrop(event)">AI Generated</div>
+          <div class="dropzone" id="ai4${i}" ondrop="drop(event, 'ai4${i}')" ondragover="allowDrop(event)">AI Generated</div>
         </div>`;
       }
-      
+
+      // Write the generated HTML into the document so it renders on the page
       document.write(formHTML);
     </script>
-    
+
+    <!-- Button to submit the ranking -->
     <button type="submit" class="submit-btn">Submit Ranking</button>
   </form>
-  
+
   <script>
+    // Flag to track if the form has already been submitted to prevent duplicate submissions
+    let formSubmitted = false;
+
+    // Function to allow dropping elements by preventing default behavior
     function allowDrop(event) {
       event.preventDefault();
     }
+
+    // Function to handle the dragging of an element
     function drag(event) {
+      // Store the id of the dragged element so it can be retrieved on drop
       event.dataTransfer.setData("text", event.target.id);
     }
+
+    // Function to handle dropping of an element into a drop zone
     function drop(event, targetId) {
       event.preventDefault();
+      // Get the id of the dragged element from the event's data transfer object
       let data = event.dataTransfer.getData("text");
       let draggedElement = document.getElementById(data);
       let dropTarget = document.getElementById(targetId);
-      
-      if (dropTarget.childElementCount === 0) {
-        dropTarget.appendChild(draggedElement);
+
+      // Check if the drop target already has an element
+      if (dropTarget.children.length > 0) {
+        let existingElement = dropTarget.children[0];
+        // Swap the existing element with the dragged element by appending the existing element back to its original parent
+        let parentOfDragged = draggedElement.parentElement;
+        parentOfDragged.appendChild(existingElement);
       }
+
+      // Append the dragged element to the drop target
+      dropTarget.appendChild(draggedElement);
     }
+
+    // Object that holds the correct answers for each speaker
+    const correctAnswers = {
+      speaker1: "speaker1_real", // Correct id for speaker 1's real voice
+      speaker2: "speaker2_real",  // Correct id for speaker 2's real voice
+      speaker3: "speaker3_real"
+  
+    };
     
+    // Add event listener to handle form submission
     document.getElementById('rankingForm').addEventListener('submit', function(event) {
       event.preventDefault();
-      let rankings = {};
-      
-      for (let i = 1; i <= totalSpeakers; i++) {
-        if (!document.getElementById('real' + i).children.length ||
-            !document.getElementById('ai1' + i).children.length ||
-            !document.getElementById('ai2' + i).children.length) {
-          alert('You haven’t ranked all speakers. Please complete all rankings before submitting.');
+  
+      // If the form has already been submitted, alert the user and exit the function
+      if (formSubmitted) {
+          alert("You have already submitted your ranking! ❌");
           return;
-        }
-        rankings['speaker' + i] = {
-          real: document.getElementById('real' + i).children[0]?.id,
-          ai1: document.getElementById('ai1' + i).children[0]?.id,
-          ai2: document.getElementById('ai2' + i).children[0]?.id
-        };
       }
-      
+  
+      let rankings = {};
+      let correctCount = 0;
+      let totalSpeakers = Object.keys(correctAnswers).length;
+      let feedback = "";
+  
+      // Check if all rankings are completed before allowing submission
+      for (let i = 1; i <= totalSpeakers; i++) {
+          if (!document.getElementById('real' + i).children.length ||
+              !document.getElementById('ai1' + i).children.length ||
+              !document.getElementById('ai2' + i).children.length ||
+              !document.getElementById('ai3' + i).children.length ||
+              !document.getElementById('ai4' + i).children.length) {
+              alert('You haven’t ranked all speakers. Please complete all rankings before submitting.');
+              return;
+          }
+  
+          let userRealSelection = document.getElementById(`real${i}`).children[0]?.id || "";
+          let userChoiceText = optionMappings[`speaker${i}`][userRealSelection] || "None Selected";
+          let correctChoiceText = optionMappings[`speaker${i}`][correctAnswers[`speaker${i}`]];
+  
+          rankings[`speaker${i}`] = {
+              real: userRealSelection,
+              ai1: document.getElementById(`ai1${i}`).children[0]?.id,
+              ai2: document.getElementById(`ai2${i}`).children[0]?.id,
+              ai3: document.getElementById(`ai3${i}`).children[0]?.id,
+              ai4: document.getElementById(`ai4${i}`).children[0]?.id
+          };
+  
+          // Compare the user's selection with the correct answer
+          if (userRealSelection === correctAnswers[`speaker${i}`]) {
+              correctCount++;
+              feedback += `✅ Speaker ${i}: Correct! (${userChoiceText})\n`;
+          } else {
+              feedback += `❌ Speaker ${i}: Incorrect! You chose (${userChoiceText}), but the correct answer was (${correctChoiceText}).\n`;
+          }
+      }
+  
+      // Submit rankings to the server
       fetch("https://formspree.io/f/xbldqjqk", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(rankings)
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rankings)
       })
       .then(response => response.json())
-      .then(data => alert("Rankings submitted successfully!"))
+      .then(data => {
+          alert("Rankings submitted successfully! ✅");
+          setTimeout(() => alert(`You correctly identified ${correctCount} out of ${totalSpeakers} real voices!\n\n${feedback}`), 500);
+          formSubmitted = true;
+          document.querySelector('.submit-btn').disabled = true;
+          document.querySelector('.submit-btn').innerText = "Submission Completed";
+      })
       .catch(error => console.error("Error:", error));
-    });
+  });
+  
   </script>
+
 </body>
 </html>
-
-
-
