@@ -83,7 +83,7 @@
   <form id="rankingForm">
     <script>
       // Define the total number of speakers to be displayed
-      let totalSpeakers = 3;
+      let totalSpeakers = 16;
       // Initialize a variable to hold the HTML content for the form
       let formHTML = "";
       // Object to store mapping from audio file IDs to their option numbers for each speaker
@@ -104,11 +104,12 @@
         // Array of audio files for the current speaker with their ids, sources, and types
         let audioFiles = [
           { id: `speaker${i}_real`, src: `speaker${i}/real.wav`, type: "Real Voice" },
-          { id: `speaker${i}_ai1`, src: `speaker${i}/speaker_fixed1.wav`, type: "AI Generated 1" },
-          { id: `speaker${i}_ai2`, src: `speaker${i}/speaker_fixed2.wav`, type: "AI Generated 2" },
-          { id: `speaker${i}_ai3`, src: `speaker${i}/playht.wav`, type: "AI Generated 3" },
-          { id: `speaker${i}_ai4`, src: `speaker${i}/resemble.wav`, type: "AI Generated 4" }
+          { id: `speaker${i}_ai1`, src: `speaker${i}/elevenlabs.mp3`, type: "AI Generated (ElevenLabs)" },
+          { id: `speaker${i}_ai2`, src: `speaker${i}/playht.wav`, type: "AI Generated (PlayHT)" },
+          { id: `speaker${i}_ai3`, src: `speaker${i}/resemble.wav`, type: "AI Generated (Resemble AI)" },
+          { id: `speaker${i}_ai4`, src: `speaker${i}/speaker_fixed1.wav`, type: "AI Generated (Fixed Model 1)" }
         ];
+        
 
         // Randomly shuffle the order of audio files so the options appear in a different order each time
         shuffleArray(audioFiles);
@@ -189,75 +190,110 @@
 
     // Object that holds the correct answers for each speaker
     const correctAnswers = {
-      speaker1: "speaker1_real", // Correct id for speaker 1's real voice
-      speaker2: "speaker2_real",  // Correct id for speaker 2's real voice
-      speaker3: "speaker3_real"
-  
+      speaker1: "speaker1_real",
+      speaker2: "speaker2_real",
+      speaker3: "speaker3_real",
+      speaker4: "speaker4_real",
+      speaker5: "speaker5_real",
+      speaker6: "speaker6_real",
+      speaker7: "speaker7_real",
+      speaker8: "speaker8_real",
+      speaker9: "speaker9_real",
+      speaker10: "speaker10_real",
+      speaker11: "speaker11_real",
+      speaker12: "speaker12_real",
+      speaker13: "speaker13_real",
+      speaker14: "speaker14_real",
+      speaker15: "speaker15_real",
+      speaker16: "speaker16_real",
+    };
+
+    // Mapping of file names to AI software names
+    const aiSoftwareMapping = {
+      "elevenlabs.mp3": "ElevenLabs",
+      "playht.wav": "PlayHT",
+      "resemble.wav": "Resemble AI",
+      "speaker_fixed1.wav": "Fixed Model 1"
     };
     
+
+    // Add event listener to handle form submission
+    // Add event listener to handle form submission
     // Add event listener to handle form submission
     document.getElementById('rankingForm').addEventListener('submit', function(event) {
       event.preventDefault();
-  
-      // If the form has already been submitted, alert the user and exit the function
+
       if (formSubmitted) {
-          alert("You have already submitted your ranking! ❌");
-          return;
+        alert("You have already submitted your ranking! ❌");
+        return;
       }
-  
+
       let rankings = {};
       let correctCount = 0;
       let totalSpeakers = Object.keys(correctAnswers).length;
       let feedback = "";
-  
-      // Check if all rankings are completed before allowing submission
+
       for (let i = 1; i <= totalSpeakers; i++) {
-          if (!document.getElementById('real' + i).children.length ||
-              !document.getElementById('ai1' + i).children.length ||
-              !document.getElementById('ai2' + i).children.length ||
-              !document.getElementById('ai3' + i).children.length ||
-              !document.getElementById('ai4' + i).children.length) {
-              alert('You haven’t ranked all speakers. Please complete all rankings before submitting.');
-              return;
+        if (!document.getElementById('real' + i).children.length ||
+            !document.getElementById('ai1' + i).children.length ||
+            !document.getElementById('ai2' + i).children.length ||
+            !document.getElementById('ai3' + i).children.length ||
+            !document.getElementById('ai4' + i).children.length) {
+          alert('You haven’t ranked all speakers. Please complete all rankings before submitting.');
+          return;
+        }
+
+        // Extract the real voice selection
+        let realElement = document.getElementById(`real${i}`).children[0];
+        let realFilePath = realElement?.querySelector("source")?.src || "";
+        let realFileName = realFilePath.split('/').pop() || "Unknown File";
+        let userRealOption = optionMappings[`speaker${i}`][realElement?.id] || "None Selected";
+
+        // Get AI-generated choices and return the **file names**
+        let aiSelections = [];
+        for (let j = 1; j <= 4; j++) {
+          let aiElement = document.getElementById(`ai${j}${i}`).children[0];
+          if (aiElement) {
+            let aiFilePath = aiElement.querySelector("source")?.src || "";
+            let aiFileName = aiFilePath.split('/').pop(); // Extract filename only
+            aiSelections.push(aiFileName);
           }
-  
-          let userRealSelection = document.getElementById(`real${i}`).children[0]?.id || "";
-          let userChoiceText = optionMappings[`speaker${i}`][userRealSelection] || "None Selected";
-          let correctChoiceText = optionMappings[`speaker${i}`][correctAnswers[`speaker${i}`]];
-  
-          rankings[`speaker${i}`] = {
-              real: userRealSelection,
-              ai1: document.getElementById(`ai1${i}`).children[0]?.id,
-              ai2: document.getElementById(`ai2${i}`).children[0]?.id,
-              ai3: document.getElementById(`ai3${i}`).children[0]?.id,
-              ai4: document.getElementById(`ai4${i}`).children[0]?.id
-          };
-  
-          // Compare the user's selection with the correct answer
-          if (userRealSelection === correctAnswers[`speaker${i}`]) {
-              correctCount++;
-              feedback += `✅ Speaker ${i}: Correct! (${userChoiceText})\n`;
-          } else {
-              feedback += `❌ Speaker ${i}: Incorrect! You chose (${userChoiceText}), but the correct answer was (${correctChoiceText}).\n`;
-          }
+        }
+
+        rankings[`speaker${i}`] = {
+          realPicked: realFileName,  // Store real file name for form submission
+          aiChoices: aiSelections
+        };
+
+        // Correct answer comparison (based on original method)
+        let correctChoiceText = optionMappings[`speaker${i}`][correctAnswers[`speaker${i}`]];
+
+        if (realElement?.id === correctAnswers[`speaker${i}`]) {
+          correctCount++;
+          feedback += `✅ Speaker ${i}: Correct! You chose ${userRealOption}.\n`;
+        } else {
+          feedback += `❌ Speaker ${i}: Incorrect! You chose ${userRealOption}, but the correct answer was ${correctChoiceText}.\n`;
+        }
       }
-  
-      // Submit rankings to the server
+
+      // Submit rankings to the server (form submission sends **file names**)
       fetch("https://formspree.io/f/xbldqjqk", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(rankings)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(rankings)
       })
       .then(response => response.json())
       .then(data => {
-          alert("Rankings submitted successfully! ✅");
-          setTimeout(() => alert(`You correctly identified ${correctCount} out of ${totalSpeakers} real voices!\n\n${feedback}`), 500);
-          formSubmitted = true;
-          document.querySelector('.submit-btn').disabled = true;
-          document.querySelector('.submit-btn').innerText = "Submission Completed";
+        alert("Rankings submitted successfully! ✅");
+        setTimeout(() => alert(`You correctly identified ${correctCount} out of ${totalSpeakers} real voices!\n\n${feedback}`), 500);
+        formSubmitted = true;
+        document.querySelector('.submit-btn').disabled = true;
+        document.querySelector('.submit-btn').innerText = "Submission Completed";
       })
       .catch(error => console.error("Error:", error));
-  });
+    });
+
+
   
   </script>
 
