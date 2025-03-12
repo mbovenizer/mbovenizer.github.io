@@ -1,0 +1,26 @@
+Ordered Speaker Choices
+Speaker,AI Choices,Real Picked
+1,"real.wav, resemble.wav, elevenlabs.mp3, speaker_fixed1.wav, playht.wav",real.wav
+2,"real.wav, elevenlabs.mp3, speaker_fixed1.wav, playht.wav, resemble.wav",real.wav
+3,"speaker_fixed1.wav, resemble.wav, playht.wav, real.wav, elevenlabs.mp3",speaker_fixed1.wav
+4,"real.wav, elevenlabs.mp3, playht.wav, resemble.wav, speaker_fixed1.wav",real.wav
+5,"speaker_fixed1.wav, resemble.wav, elevenlabs.mp3, real.wav, playht.wav",speaker_fixed1.wav
+6,"real.wav, resemble.wav, elevenlabs.mp3, playht.wav, speaker_fixed1.wav",real.wav
+7,"resemble.wav, elevenlabs.mp3, playht.wav, real.wav, speaker_fixed1.wav",resemble.wav
+8,"resemble.wav, real.wav, speaker_fixed1.wav, elevenlabs.mp3, playht.wav",resemble.wav
+9,"elevenlabs.mp3, speaker_fixed1.wav, playht.wav, resemble.wav, real.wav",elevenlabs.mp3
+10,"elevenlabs.mp3, playht.wav, real.wav, speaker_fixed1.wav, resemble.wav",elevenlabs.mp3
+11,"real.wav, speaker_fixed1.wav, resemble.wav, elevenlabs.mp3, playht.wav",real.wav
+12,"real.wav, elevenlabs.mp3, playht.wav, speaker_fixed1.wav, resemble.wav",real.wav
+13,"elevenlabs.mp3, resemble.wav, real.wav, playht.wav, speaker_fixed1.wav",elevenlabs.mp3
+14,"elevenlabs.mp3, playht.wav, resemble.wav, speaker_fixed1.wav, real.wav",elevenlabs.mp3
+15,"real.wav, elevenlabs.mp3, playht.wav, speaker_fixed1.wav, resemble.wav",real.wav
+16,"real.wav, speaker_fixed1.wav, playht.wav, resemble.wav, elevenlabs.mp3",real.wav
+
+
+Most Chosen AI Voices
+AI Choice,Times Picked
+real.wav,8
+elevenlabs.mp3,4
+speaker_fixed1.wav,2
+resemble.wav,2
