@@ -14,4 +14,13 @@ Speaker,AI Choices,Real Picked
 13,"real.wav, speaker_fixed1.wav, playht.wav, elevenlabs.mp3, resemble.wav",real.wav
 14,"real.wav, playht.wav, speaker_fixed1.wav, elevenlabs.mp3, resemble.wav",real.wav
 15,"playht.wav, elevenlabs.mp3, real.wav, speaker_fixed1.wav, resemble.wav",playht.wav
-16,"real.wav, playht.wav, speaker_fixed1.wav, elevenlabs.mp3, resemble.wav",re
+16,"real.wav, playht.wav, speaker_fixed1.wav, elevenlabs.mp3, resemble.wav",real.wav
+
+
+Most Chosen AI Voices
+AI Choice,Times Picked
+playht.wav,6
+real.wav,4
+speaker_fixed1.wav,3
+resemble.wav,2
+elevenlabs.mp3,1
